@@ -50,6 +50,17 @@ public class Container {
         })
         return .init(dependency: dependency, factories: factories + [AnyServiceFactory(newFactory)])
     }
+    
+    public func register<ServiceType, ParameterType>(
+        _ interface: ServiceType.Type,
+        _ papameter: ParameterType.Type,
+        _ factory: @escaping (Resolver, ParameterType?) -> ServiceType) -> Container {
+
+        let newFactory = ParameterisedServiceFactory<ServiceType, ParameterType>(interface, factory: { resolver, param in
+            factory(resolver, param)
+        })
+        return .init(dependency: dependency, factories: factories + [AnyServiceFactory(newFactory)])
+    }
 }
 
 // MARK: - Resolver
@@ -79,6 +90,23 @@ extension Container: Resolver {
     public func resolve<ServiceType>() throws -> ServiceType {
         return try resolve(ServiceType.self)
     }
+    
+    public func resolve<ServiceType, ParameterType>(_ type: ServiceType.Type, param: ParameterType?) throws -> ServiceType {
+        guard let factory = factories.first(where: { $0.supports(type) }) else {
+            guard let resolvedByDependency = try dependency?.resolve(type, param: param) else {
+                throw Container.unableToResolve(type)
+            }
+
+            return resolvedByDependency
+        }
+
+        return try factory.resolve(self, param: param)
+    }
+    
+    public func resolve<ServiceType, ParameterType>(_ param: ParameterType?) throws -> ServiceType {
+        return try resolve(ServiceType.self, param: param)
+    }
+    
 }
 
 // MARK: - Error

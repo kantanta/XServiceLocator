@@ -10,9 +10,11 @@ import Foundation
 /// Generic factory solution that is used to resolve/create instances of type `ServiceType`
 protocol ServiceFactory {
     associatedtype ServiceType
+    associatedtype ParameterType
 
     /// tries resolving/generating the instance of generic type using the passed `Resolver`
     func resolve(_ resolver: Resolver) throws -> ServiceType
+    func resolve(_ resolver: Resolver, param: ParameterType?) throws -> ServiceType
 }
 
 extension ServiceFactory {

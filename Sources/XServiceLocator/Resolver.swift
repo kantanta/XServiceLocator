@@ -10,8 +10,12 @@ import Foundation
 public protocol Resolver {
     /// Resolves to an instance of type `ServiceType` and throws if no instance/factory has already been registered.
     func resolve<ServiceType>(_ type: ServiceType.Type) throws -> ServiceType
+    
+    func resolve<ServiceType, ParameterType>(_ type: ServiceType.Type, param: ParameterType?) throws -> ServiceType
 
     /// makes use of type inference to resolve to an instance of type `ServiceType` and throws if no instance/factory
     /// has already been registered. Makes use o
     func resolve<ServiceType>() throws -> ServiceType
+    
+    func resolve<ServiceType, ParameterType>(_ param: ParameterType?) throws -> ServiceType
 }
